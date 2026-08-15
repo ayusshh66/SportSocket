@@ -7,7 +7,7 @@ import { getMatchStatus } from "../utils/index.js";
 const matchRouter = express.Router();
 const MAX_LIMIT = 100; // Maximum limit for pagination
 
-matchRouter.get("/matches", async(req: Request, res: Response) => {
+matchRouter.get("/", async(req: Request, res: Response) => {
     const limit = Math.min(Number(req.query.limit) || 10, MAX_LIMIT);
 
     try{
@@ -33,7 +33,7 @@ matchRouter.get("/matches", async(req: Request, res: Response) => {
     
 });
 
-matchRouter.post("/matches", async (req: Request, res: Response) => {
+matchRouter.post("/", async (req: Request, res: Response) => {
   const parsed = await createMatchSchema.safeParseAsync(req.body);
 
   if (!parsed.success) {

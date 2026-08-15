@@ -21,8 +21,9 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello, World!");
 });
 
-const { broadcastMatchCreated } = attachWebSocketServer(server);
+const { broadcastMatchCreated, broadcastCommentary } = attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastCommentary = broadcastCommentary;
 
 
 server.listen(PORT, HOST, () => {
