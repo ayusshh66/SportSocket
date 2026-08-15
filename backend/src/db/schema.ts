@@ -17,9 +17,9 @@ export const matches = pgTable("matches", {
   // updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
-//comentry table
-export const cometary = pgTable("commentary", {
-  id: integer("id").primaryKey(),
+//commentary table
+export const commentary = pgTable("commentary", {
+  id: serial("id").primaryKey(),
   matchId: integer("match_id").notNull().references(() => matches.id),
   minute : integer("minute"),
   sequence : integer("sequence"),
@@ -32,3 +32,4 @@ export const cometary = pgTable("commentary", {
   tags: text("tags").array(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
+

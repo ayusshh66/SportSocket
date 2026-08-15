@@ -1,13 +1,36 @@
 import express, { Request, Response } from "express";
-import { createMatchSchema } from "../validation/index.js";
+import { createMatchSchema, listMatchesQuerySchema } from "../validation/index.js";
 import { matches } from "../db/schema.js";
 import { db } from "../db/index.js";
 import { getMatchStatus } from "../utils/index.js";
 
 const matchRouter = express.Router();
+const MAX_LIMIT = 100; // Maximum limit for pagination
 
-matchRouter.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to the API!");
+matchRouter.get("/matches", async(req: Request, res: Response) => {
+    const limit = Math.min(Number(req.query.limit) || 10, MAX_LIMIT);
+
+    try{
+        const parsed = await listMatchesQuerySchema.safeParseAsync(req.query);
+        
+        if(!parsed.success) {
+            return res.status(400).json({ error:"Invalid query parameters", detail: JSON.stringify(parsed.error) });
+        }
+
+        const limit = Math.min(parsed.data.limit || 50, MAX_LIMIT);
+
+        const matchesList = await db.query.matches.findMany({
+            limit: limit,
+            orderBy: {createdAt: "desc"},
+        });
+
+        return res.status(200).json({ data: matchesList });
+
+
+    }catch(err) {
+        return res.status(500).json({ error: "Internal server error", detail: JSON.stringify(err) })
+    }
+    
 });
 
 matchRouter.post("/matches", async (req: Request, res: Response) => {
