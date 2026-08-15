@@ -7,9 +7,8 @@ import { commentary } from "../db/schema.js";
 
 const MAX_LIMIT = 100;
 
-// Router with mergeParams: true allows access to parent params (e.g., :id)
 export const commentaryRouter = Router({ mergeParams: true });
-export const commentartRouter = commentaryRouter; // alias for compatibility
+export const commentartRouter = commentaryRouter;
 
 commentaryRouter.get("/", async (req: Request, res: Response) => {
     try {
@@ -78,6 +77,10 @@ commentaryRouter.post("/", async (req: Request, res: Response) => {
                 ...bodyParsed.data,
             })
             .returning();
+
+        if (res.app.locals.broadcastCommentary) {
+            res.app.locals.broadcastCommentary(newCommentary.matchId, newCommentary);
+        }
 
         return res.status(201).json({
             message: "Commentary created successfully",
