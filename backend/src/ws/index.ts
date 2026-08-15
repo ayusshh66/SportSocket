@@ -1,10 +1,11 @@
-import { WebSocketServer, WebSocket } from "ws";
+import { WebSocketServer, WebSocket, RawData } from "ws";
 import { Request, Response } from "express";
 import { wsArcjet } from "../arcjet.js";
 
 declare module "ws" {
     interface WebSocket {
         isAlive?: boolean;
+        subscriptions?: Set<string>;
     }
 }
 
@@ -15,27 +16,30 @@ function subscribe(matchId: string, socket: WebSocket) {
         matchSubscribers.set(matchId, []);
     }
     matchSubscribers.get(matchId)?.push(socket);
+    socket.subscriptions?.add(matchId);
 }
 
-function unsubscribe(match: string, socket: WebSocket) {
-    const subs = matchSubscribers.get(match);
-    if (!subs) return;
-
-    const index = subs.indexOf(socket);
-    if (index !== -1) subs.splice(index, 1);
-
-    if (subs.length === 0) matchSubscribers.delete(match);
-
+function unsubscribe(matchId: string, socket: WebSocket) {
+    const subs = matchSubscribers.get(matchId);
+    if (subs) {
+        const index = subs.indexOf(socket);
+        if (index !== -1) subs.splice(index, 1);
+        if (subs.length === 0) matchSubscribers.delete(matchId);
+    }
+    socket.subscriptions?.delete(matchId);
 }
 
 function cleanUpSubscriptions(socket: WebSocket) {
-    for (const [match, subs] of matchSubscribers.entries()) {
-        const index = subs.indexOf(socket);
-        if (index !== -1) {
-            subs.splice(index, 1);
-            if (subs.length === 0) matchSubscribers.delete(match);
-            return;
+    if (socket.subscriptions) {
+        for (const matchId of socket.subscriptions) {
+            const subs = matchSubscribers.get(matchId);
+            if (subs) {
+                const index = subs.indexOf(socket);
+                if (index !== -1) subs.splice(index, 1);
+                if (subs.length === 0) matchSubscribers.delete(matchId);
+            }
         }
+        socket.subscriptions.clear();
     }
 }
 
@@ -67,6 +71,32 @@ function broadcastToMatch(match: string, payload: unknown) {
     }
 }
 
+function handleMessage(socket: WebSocket, data: RawData) {
+    let message;
+    try {
+        message = JSON.parse(data.toString());
+    } catch {
+        sendJson(socket, {
+            type: "error",
+            message: "invalid json"
+        })
+        return;
+    }
+
+    if (message?.type === "subscribe" && Number.isInteger(message.matchId)) {
+        subscribe(message.matchId, socket);
+        if (!socket.subscriptions) {
+            socket.subscriptions = new Set<string>();
+        }
+        socket.subscriptions.add(message.matchId);
+        sendJson(socket, {
+            type: "subscribed",
+            matchId: message.matchId,
+            timestamp: Date.now()
+        });
+    }
+}
+
 export function attachWebSocketServer(server: any) {
     const wss = new WebSocketServer({
         server,
@@ -93,9 +123,13 @@ export function attachWebSocketServer(server: any) {
             }
         }
         socket.isAlive = true;
+        socket.subscriptions = new Set<string>();
         socket.on("pong", () => { socket.isAlive = true; });
         sendJson(socket, { type: "welcome" });
         socket.on("error", console.error);
+        socket.on("close", () => {
+            cleanUpSubscriptions(socket);
+        });
     })
 
     const interval = setInterval(() => {
