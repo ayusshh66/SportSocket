@@ -2,6 +2,7 @@ import express, {Request, Response} from "express";
 import router from "./routes/index.js";
 import http from "http";
 import { attachWebSocketServer } from "./ws/index.js";
+import { securityMiddleware } from "./arcjet.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -10,6 +11,7 @@ const PORT = Number(process.env.PORT || 8000);
 const HOST = process.env.HOST || "0.0.0.0";
 
 app.use(express.json());
+app.use(securityMiddleware())
 
 app.use("/api", router);
 
