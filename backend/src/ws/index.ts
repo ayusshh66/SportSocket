@@ -22,5 +22,16 @@ export function attachWebSocketServer(server: any){
         maxPayload : 1024 * 1024 //1mb
     });
 
-    
+    wss.on("connection",(socket)=>{
+        sendJson(socket,{type:"welcome"});
+        socket.on("error", console.error);
+    })
+
+    function broadcastMatchCreated(match:unknown){
+        broadcast(wss, {type:"match_created",data : match});
+    }
+
+    return { broadcastMatchCreated};
+
+
 }
