@@ -1,7 +1,8 @@
-import { integer, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const matchStatusEnum = pgEnum("match_status", ["scheduled", "live", "finished"]);
 
+// match table
 export const matches = pgTable("matches", {
   id: integer("id").primaryKey(),
   sports: text("sports").notNull(),
@@ -16,10 +17,18 @@ export const matches = pgTable("matches", {
   // updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
+//comentry table
 export const cometary = pgTable("commentary", {
   id: integer("id").primaryKey(),
   matchId: integer("match_id").notNull().references(() => matches.id),
   minute : integer("minute"),
-  
-
+  sequence : integer("sequence"),
+  period : text("period"),
+  eventType: text("event_type"),
+  actor : text("actor"),
+  team: text("team"),
+  message: text("message"),
+  metadata: jsonb("metadata"),
+  tags: text("tags").array(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 })
