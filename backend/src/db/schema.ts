@@ -1,10 +1,10 @@
-import { integer, jsonb, pgEnum, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgEnum, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const matchStatusEnum = pgEnum("match_status", ["scheduled", "live", "finished"]);
 
 // match table
 export const matches = pgTable("matches", {
-  id: integer("id").primaryKey(),
+  id: serial("id").primaryKey(),
   sports: text("sports").notNull(),
   homeTeam: text("home_team").notNull(),
   awayTeam: text("away_team").notNull(),
