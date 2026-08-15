@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 export const MATCH_STATUS = {
-    SCEHDULED: "scheduled",
+    SCHEDULED: "scheduled",
     LIVE: "live",
     FINISHED: "finished"
 };
@@ -25,13 +25,20 @@ const createMatchSchema = z.object({
     startTime: isoDateString,
     endTime: isoDateString,
     homeScore: z.coerce.number().int().nonnegative().optional(),
-    awayScore: z.coerce.number().int().nonnegative().optional().superRefine((val, ctx) => {
-        if (val !== undefined && val < 0) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: "Away score must be a non-negative integer",
-            });
-        }   
-    }),
-    status: z.enum([MATCH_STATUS.SCEHDULED, MATCH_STATUS.LIVE, MATCH_STATUS.FINISHED]).optional(),
-});
+    awayScore: z.coerce.number().int().nonnegative().optional()}).superRefine((data, ctx) => {
+           const start = new Date(data.startTime);
+           const end = new Date(data.endTime);
+           if (start >= end) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Start time must be before end time",
+                    path: ["endTime"],
+                });
+            }
+    });
+
+    export const updateScoreSchema = z.object({
+        homeScore: z.coerce.number().int().nonnegative(),
+        awayScore: z.coerce.number().int().nonnegative(),
+    });
+    
