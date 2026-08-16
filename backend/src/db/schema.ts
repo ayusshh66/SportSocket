@@ -31,5 +31,16 @@ export const commentary = pgTable("commentary", {
   metadata: jsonb("metadata"),
   tags: text("tags").array(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-})
+});
+
+// users table
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  favoriteSport: text("favorite_sport").default("Football"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 
