@@ -15,7 +15,10 @@ function subscribe(matchId: string, socket: WebSocket) {
     if (!matchSubscribers.has(matchId)) {
         matchSubscribers.set(matchId, []);
     }
-    matchSubscribers.get(matchId)?.push(socket);
+    const subs = matchSubscribers.get(matchId)!;
+    if (!subs.includes(socket)) {
+        subs.push(socket);
+    }
     socket.subscriptions?.add(matchId);
 }
 
@@ -50,10 +53,11 @@ function sendJson(socket: WebSocket, payload: unknown) {
 }
 
 function broadcastToAll(wss: WebSocketServer, payload: unknown) {
+    const message = JSON.stringify(payload);
     for (const client of wss.clients) {
-        if (client.readyState !== WebSocket.OPEN) return;
+        if (client.readyState !== WebSocket.OPEN) continue;
 
-        client.send(JSON.stringify(payload));
+        client.send(message);
     }
 }
 
