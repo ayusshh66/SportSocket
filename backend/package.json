@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": " tsx watch src/index.ts",
+    "seed": "tsx src/seed/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
     "@arcjet/node": "^1.10.0",
     "@neondatabase/serverless": "^1.1.0",
     "@types/express": "^5.0.6",
+    "apminsight": "^5.5.1",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^1.0.0-rc.4",
     "express": "^5.2.1",

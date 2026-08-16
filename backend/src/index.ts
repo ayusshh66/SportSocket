@@ -1,3 +1,6 @@
+import AgentAPI from "apminsight";
+AgentAPI.config();
+
 import express, { Request, Response } from "express";
 import router from "./routes/index.js";
 import { commentartRouter } from "./routes/commentary.js";
@@ -15,6 +18,7 @@ app.use(express.json());
 app.use(securityMiddleware())
 
 app.use("/api/matches", router);
+app.use("/api/matches/:id/commentary", commentartRouter);
 app.use("/api/:id/commentary", commentartRouter);
 
 app.get("/", (req: Request, res: Response) => {
