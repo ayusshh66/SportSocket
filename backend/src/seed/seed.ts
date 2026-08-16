@@ -74,7 +74,11 @@ const DEFAULT_DATA_FILE = new URL("../data/data.json", import.meta.url);
 
 async function readJsonFile<T>(fileUrl: URL | string): Promise<T> {
     const raw = await fs.readFile(fileUrl, "utf8");
-    return JSON.parse(raw) as T;
+    const trimmed = raw.trim();
+    if (!trimmed) {
+        throw new Error(`Seed data file at ${String(fileUrl)} is empty.`);
+    }
+    return JSON.parse(trimmed) as T;
 }
 
 async function loadSeedData(): Promise<{ feed: CommentaryEntry[]; matches: SeedMatch[] }> {
@@ -98,12 +102,19 @@ async function loadSeedData(): Promise<{ feed: CommentaryEntry[]; matches: SeedM
 }
 
 async function fetchMatches(limit = 100): Promise<MatchRecord[]> {
-    const response = await fetch(`${API_URL}/matches?limit=${limit}`);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch matches: ${response.status} ${response.statusText}`);
+    try {
+        const response = await fetch(`${API_URL}/matches?limit=${limit}`);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch matches: ${response.status} ${response.statusText}`);
+        }
+        const payload = (await response.json()) as { data?: MatchRecord[] };
+        return Array.isArray(payload.data) ? payload.data : [];
+    } catch (err: any) {
+        if (err.cause && (err.cause.code === "ECONNREFUSED" || err.message.includes("fetch failed"))) {
+            throw new Error(`Could not connect to backend server at ${API_URL}. Please make sure your server is running first ('npm run dev').`);
+        }
+        throw err;
     }
-    const payload = (await response.json()) as { data?: MatchRecord[] };
-    return Array.isArray(payload.data) ? payload.data : [];
 }
 
 function parseDate(value?: string | Date | null): Date | null {
