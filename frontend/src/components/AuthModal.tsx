@@ -64,7 +64,7 @@ export const AuthModal: React.FC = () => {
             </div>
             <div>
               <h3 className="text-xl font-black text-black uppercase tracking-tight">
-                {mode === 'login' ? 'Fan Sign In' : 'Join Spotrz Fan Club'}
+                {mode === 'login' ? 'Fan Sign In' : 'Join SportSocket Fan Club'}
               </h3>
               <p className="text-xs font-bold text-neutral-500">
                 {mode === 'login'

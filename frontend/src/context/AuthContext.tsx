@@ -24,14 +24,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Load from localStorage on mount
-    const savedToken = localStorage.getItem('sportz_token');
-    const savedUser = localStorage.getItem('sportz_user');
+    const savedToken = localStorage.getItem('sportsocket_token') || localStorage.getItem('sportz_token');
+    const savedUser = localStorage.getItem('sportsocket_user') || localStorage.getItem('sportz_user');
     if (savedToken && savedUser) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
       } catch (e) {
         console.error('Error parsing stored user:', e);
+        localStorage.removeItem('sportsocket_token');
+        localStorage.removeItem('sportsocket_user');
         localStorage.removeItem('sportz_token');
         localStorage.removeItem('sportz_user');
       }
@@ -53,8 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = json as AuthResponse;
     setToken(data.token);
     setUser(data.user);
-    localStorage.setItem('sportz_token', data.token);
-    localStorage.setItem('sportz_user', JSON.stringify(data.user));
+    localStorage.setItem('sportsocket_token', data.token);
+    localStorage.setItem('sportsocket_user', JSON.stringify(data.user));
     setIsAuthModalOpen(false);
   };
 
@@ -73,14 +75,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = json as AuthResponse;
     setToken(data.token);
     setUser(data.user);
-    localStorage.setItem('sportz_token', data.token);
-    localStorage.setItem('sportz_user', JSON.stringify(data.user));
+    localStorage.setItem('sportsocket_token', data.token);
+    localStorage.setItem('sportsocket_user', JSON.stringify(data.user));
     setIsAuthModalOpen(false);
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
+    localStorage.removeItem('sportsocket_token');
+    localStorage.removeItem('sportsocket_user');
     localStorage.removeItem('sportz_token');
     localStorage.removeItem('sportz_user');
   };

@@ -61,7 +61,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ onEnterDashboard, live
             </h1>
 
             <p className="text-base sm:text-lg font-semibold text-neutral-700 leading-relaxed">
-              Spotrz is a high-speed sports engine that delivers instant live score updates, ball-by-ball commentary, and match highlights directly to your screen with zero page refreshes.
+              SportSocket is a high-speed sports engine that delivers instant live score updates, ball-by-ball commentary, and match highlights directly to your screen with zero page refreshes.
             </p>
 
             {/* Quick CTAs */}

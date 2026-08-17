@@ -42,7 +42,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="bg-[#10B981] text-black border-2 border-black px-2.5 py-0.5 font-black text-xs uppercase tracking-wider shadow-[2px_2px_0px_0px_#000000] flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 fill-black stroke-black" />
-              <span>SPOTRZ ENGINE</span>
+              <span>SPORTSOCKET ENGINE</span>
             </div>
 
             {/* Live WebSocket Status Badge */}
@@ -75,7 +75,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
           <div className="flex items-center gap-4">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-black">
-              Spotrz <span className="text-[#8B5CF6]">—</span> Real-Time Sports Engine
+              SportSocket <span className="text-[#8B5CF6]">—</span> Real-Time Sports Engine
             </h1>
           </div>
         </div>

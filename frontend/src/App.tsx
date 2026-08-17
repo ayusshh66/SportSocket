@@ -8,6 +8,9 @@ import { CreateMatchModal } from './components/CreateMatchModal';
 import { AddCommentaryModal } from './components/AddCommentaryModal';
 import { AuthModal } from './components/AuthModal';
 import { LandingHero } from './components/LandingHero';
+import { Footer } from './components/Footer';
+import { AudioBar } from './components/AudioBar';
+import { sportsAudio } from './utils/sportsAudio';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import type { Match, Commentary, WSMessage } from './types';
 
@@ -65,6 +68,30 @@ const INITIAL_DEMO_MATCHES: Match[] = [
     awayScore: 1,
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 5,
+    sports: 'Esports',
+    homeTeam: 'T1 (LoL)',
+    awayTeam: 'Gen.G',
+    status: 'live',
+    startTime: new Date(Date.now() - 1800000).toISOString(),
+    endTime: new Date(Date.now() + 5400000).toISOString(),
+    homeScore: 14,
+    awayScore: 9,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 6,
+    sports: 'Esports',
+    homeTeam: 'Sentinels (VAL)',
+    awayTeam: 'Fnatic',
+    status: 'scheduled',
+    startTime: new Date(Date.now() + 10800000).toISOString(),
+    endTime: new Date(Date.now() + 18000000).toISOString(),
+    homeScore: 0,
+    awayScore: 0,
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 const INITIAL_DEMO_COMMENTARIES: Record<number, Commentary[]> = {
@@ -108,6 +135,47 @@ const INITIAL_DEMO_COMMENTARIES: Record<number, Commentary[]> = {
       team: 'India',
       message: 'MAXIMUM! Kohli steps out and launches it over long-on into the second tier. What a shot!',
       tags: ['six', 'maximum', 'kohli'],
+      createdAt: new Date().toISOString(),
+    },
+  ],
+  5: [
+    {
+      id: 702,
+      matchId: 5,
+      minute: 24,
+      sequence: 702,
+      period: 'Game 2 (24m)',
+      eventType: 'ACE_PENTAKILL',
+      actor: 'Faker (Azir)',
+      team: 'T1 (LoL)',
+      message: 'PENTAKILL FOR FAKER! Shurima Shuffle into 4 enemies and melts the entire backline under the inhibitor turret!',
+      tags: ['pentakill', 'faker', 'highlight', 'worlds'],
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 701,
+      matchId: 5,
+      minute: 18,
+      sequence: 701,
+      period: 'Game 2 (18m)',
+      eventType: 'OBJECTIVE',
+      actor: 'Oner',
+      team: 'T1 (LoL)',
+      message: 'BARON NASHOR SECURED! Flawless smite fight around the river pit turns the tide of the match.',
+      tags: ['baron', 'objective', 'smite'],
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 700,
+      matchId: 5,
+      minute: 4,
+      sequence: 700,
+      period: 'Game 2 (4m)',
+      eventType: 'FIRST_BLOOD',
+      actor: 'Gumayusi',
+      team: 'T1 (LoL)',
+      message: 'FIRST BLOOD! Gumayusi lands the root at bot river bush to draw the opening kill against Ruler.',
+      tags: ['firstblood', 'kill'],
       createdAt: new Date().toISOString(),
     },
   ],
@@ -239,7 +307,7 @@ const DashboardContent: React.FC = () => {
             if (data.type === 'match_created' && data.data) {
               const newMatch: Match = data.data;
               setMatches((prev) => {
-                const exists = prev.some((m) => m.id === newMatch.id);
+                const exists = prev.some((m) => Number(m.id) === Number(newMatch.id));
                 return exists ? prev : [newMatch, ...prev];
               });
             }
@@ -251,7 +319,7 @@ const DashboardContent: React.FC = () => {
                 Number(newComm.matchId) === Number(selectedMatchRef.current.id)
               ) {
                 setCommentaries((prev) => {
-                  const exists = prev.some((c) => c.id === newComm.id);
+                  const exists = prev.some((c) => Number(c.id) === Number(newComm.id));
                   return exists ? prev : [newComm, ...prev];
                 });
               }
@@ -288,6 +356,9 @@ const DashboardContent: React.FC = () => {
 
   // Handle Match Selection
   const handleSelectMatch = (match: Match) => {
+    // Play sport specific sound & start ambience
+    sportsAudio.playSportMatchSound(match.sports);
+
     // If not authenticated, prompt login but still allow viewing
     if (!isAuthenticated) {
       openAuthModal('signup');
@@ -352,6 +423,9 @@ const DashboardContent: React.FC = () => {
           />
         )}
 
+        {/* Sport Match Sound & Ambience Controller */}
+        <AudioBar currentSport={selectedMatch?.sports} />
+
         {/* Live Engine Section Header */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
@@ -394,10 +468,11 @@ const DashboardContent: React.FC = () => {
               className="bg-white border-2 border-black px-3 py-1.5 font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] outline-none cursor-pointer"
             >
               <option value="all">All Sports</option>
-              <option value="football">Football</option>
-              <option value="cricket">Cricket</option>
-              <option value="basketball">Basketball</option>
-              <option value="tennis">Tennis</option>
+              <option value="football">⚽ Football</option>
+              <option value="cricket">🏏 Cricket</option>
+              <option value="basketball">🏀 Basketball</option>
+              <option value="tennis">🎾 Tennis</option>
+              <option value="esports">🎮 Esports</option>
             </select>
           </div>
         </div>
@@ -447,6 +522,13 @@ const DashboardContent: React.FC = () => {
               selectedMatch={selectedMatch}
               commentaries={commentaries}
               isLoading={isLoadingCommentary}
+              apiBaseUrl={API_BASE_URL}
+              onCommentaryAdded={(newComm) => {
+                setCommentaries((prev) => {
+                  const exists = prev.some((c) => Number(c.id) === Number(newComm.id));
+                  return exists ? prev : [newComm, ...prev];
+                });
+              }}
               onAddCommentaryClick={() => {
                 if (!isAuthenticated) {
                   openAuthModal('signup');
@@ -457,6 +539,9 @@ const DashboardContent: React.FC = () => {
             />
           </div>
         </div>
+
+        {/* Developer Info & System Architecture Footer */}
+        <Footer />
       </div>
 
       {/* Modals */}
@@ -464,7 +549,10 @@ const DashboardContent: React.FC = () => {
         isOpen={isCreateMatchOpen}
         onClose={() => setIsCreateMatchOpen(false)}
         onMatchCreated={(newMatch) => {
-          setMatches((prev) => [newMatch, ...prev]);
+          setMatches((prev) => {
+            const exists = prev.some((m) => Number(m.id) === Number(newMatch.id));
+            return exists ? prev : [newMatch, ...prev];
+          });
           setSelectedMatch(newMatch);
         }}
         apiBaseUrl={API_BASE_URL}
@@ -475,7 +563,10 @@ const DashboardContent: React.FC = () => {
         onClose={() => setIsAddCommentaryOpen(false)}
         selectedMatch={selectedMatch}
         onCommentaryAdded={(newComm) => {
-          setCommentaries((prev) => [newComm, ...prev]);
+          setCommentaries((prev) => {
+            const exists = prev.some((c) => Number(c.id) === Number(newComm.id));
+            return exists ? prev : [newComm, ...prev];
+          });
         }}
         apiBaseUrl={API_BASE_URL}
       />

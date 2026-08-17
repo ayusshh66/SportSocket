@@ -41,6 +41,11 @@ export const AddCommentaryModal: React.FC<AddCommentaryModalProps> = ({
       setEventType('3_POINTER');
       setMinuteStr('32');
       setTagsInput('clutch, three');
+    } else if (sport.includes('esport') || sport.includes('gaming')) {
+      setPeriod('Round 14');
+      setEventType('ACE_PENTAKILL');
+      setMinuteStr('24');
+      setTagsInput('ace, clutch, highlight');
     } else {
       setPeriod('2nd Half');
       setEventType('GOAL');
@@ -111,6 +116,7 @@ export const AddCommentaryModal: React.FC<AddCommentaryModalProps> = ({
 
   const isCricket = selectedMatch.sports.toLowerCase().includes('cricket');
   const isBasketball = selectedMatch.sports.toLowerCase().includes('basket');
+  const isEsports = selectedMatch.sports.toLowerCase().includes('esport') || selectedMatch.sports.toLowerCase().includes('gaming');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
@@ -149,13 +155,13 @@ export const AddCommentaryModal: React.FC<AddCommentaryModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-black uppercase tracking-wider mb-1">
-                {isCricket ? 'Over / Minute Number' : isBasketball ? 'Game Minute' : 'Match Minute'}
+                {isCricket ? 'Over / Minute Number' : isBasketball ? 'Game Minute' : isEsports ? 'Game Minute / Round' : 'Match Minute'}
               </label>
               <input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                placeholder="e.g. 74"
+                placeholder="e.g. 24"
                 value={minuteStr}
                 onChange={(e) => handleMinuteInput(e.target.value)}
                 className="w-full bg-[#F4F4F0] border-2 border-black p-2.5 font-bold text-sm shadow-[2px_2px_0px_0px_#000000] outline-none"
@@ -163,13 +169,13 @@ export const AddCommentaryModal: React.FC<AddCommentaryModalProps> = ({
             </div>
             <div>
               <label className="block text-xs font-black uppercase tracking-wider mb-1">
-                {isCricket ? 'Over / Session' : isBasketball ? 'Quarter & Clock' : 'Match Period'}
+                {isCricket ? 'Over / Session' : isBasketball ? 'Quarter & Clock' : isEsports ? 'Round & Map' : 'Match Period'}
               </label>
               <input
                 type="text"
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
-                placeholder={isCricket ? 'Over 18.2' : isBasketball ? 'Q3 08:42' : '2nd Half'}
+                placeholder={isCricket ? 'Over 18.2' : isBasketball ? 'Q3 08:42' : isEsports ? 'Round 14 (Map 2)' : '2nd Half'}
                 className="w-full bg-[#F4F4F0] border-2 border-black p-2.5 font-bold text-sm shadow-[2px_2px_0px_0px_#000000] outline-none"
               />
             </div>
@@ -203,6 +209,15 @@ export const AddCommentaryModal: React.FC<AddCommentaryModalProps> = ({
                     <option value="TIMEOUT">⏱️ TIMEOUT</option>
                     <option value="STEAL">🔥 STEAL / BLOCK</option>
                   </>
+                ) : isEsports ? (
+                  <>
+                    <option value="FIRST_BLOOD">💥 FIRST BLOOD</option>
+                    <option value="ACE_PENTAKILL">👑 ACE / PENTAKILL</option>
+                    <option value="CLUTCH_1V3">💣 1v3 CLUTCH</option>
+                    <option value="ROUND_WIN">🏆 ROUND / MAP WIN</option>
+                    <option value="OBJECTIVE">🐲 DRAGON / BARON SECURED</option>
+                    <option value="HEADSHOT">🎯 HEADSHOT MULTI-KILL</option>
+                  </>
                 ) : (
                   <>
                     <option value="GOAL">⚽ GOAL</option>
@@ -222,7 +237,7 @@ export const AddCommentaryModal: React.FC<AddCommentaryModalProps> = ({
               </label>
               <input
                 type="text"
-                placeholder={isCricket ? 'e.g. Rohit Sharma' : isBasketball ? 'e.g. LeBron James' : 'e.g. Vinicius Jr'}
+                placeholder={isCricket ? 'e.g. Rohit Sharma' : isBasketball ? 'e.g. LeBron James' : isEsports ? 'e.g. Faker / TenZ' : 'e.g. Vinicius Jr'}
                 value={actor}
                 onChange={(e) => setActor(e.target.value)}
                 className="w-full bg-[#F4F4F0] border-2 border-black p-2.5 font-bold text-sm shadow-[2px_2px_0px_0px_#000000] outline-none"

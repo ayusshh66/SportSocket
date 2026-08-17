@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Eye, CheckCircle2 } from 'lucide-react';
 import type { Match } from '../types';
+import { sportsAudio } from '../utils/sportsAudio';
 
 
 interface MatchCardProps {
@@ -13,6 +14,11 @@ interface MatchCardProps {
 export const MatchCard: React.FC<MatchCardProps> = ({ match, isSelected, onSelect }) => {
   const isLive = match.status === 'live';
   const isFinished = match.status === 'finished';
+
+  const handleCardClick = () => {
+    sportsAudio.playSportMatchSound(match.sports);
+    onSelect(match);
+  };
 
   // Format date / time
   const formatTime = (dateStr: string) => {
@@ -30,6 +36,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, isSelected, onSelec
     if (s.includes('football') || s.includes('soccer')) return 'bg-emerald-300 text-black';
     if (s.includes('basket')) return 'bg-orange-300 text-black';
     if (s.includes('tennis')) return 'bg-lime-300 text-black';
+    if (s.includes('esport')) return 'bg-cyan-300 text-black';
     return 'bg-[#8B5CF6]/30 text-black';
   };
 
@@ -41,7 +48,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, isSelected, onSelec
       exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ y: -4, x: -4 }}
       transition={{ duration: 0.2 }}
-      onClick={() => onSelect(match)}
+      onClick={handleCardClick}
       className={`relative cursor-pointer transition-all border-3 border-black p-5 flex flex-col justify-between ${
         isSelected
           ? 'bg-[#FFFFFF] ring-4 ring-[#10B981] shadow-[7px_7px_0px_0px_#000000]'
@@ -125,6 +132,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({ match, isSelected, onSelec
           whileTap={{ scale: 0.95, x: 2, y: 2 }}
           onClick={(e) => {
             e.stopPropagation();
+            sportsAudio.playSportMatchSound(match.sports);
             onSelect(match);
           }}
           className={`flex items-center gap-1.5 px-3.5 py-1.5 border-2 border-black font-black text-xs uppercase tracking-wider shadow-[3px_3px_0px_0px_#000000] cursor-pointer transition-colors ${
