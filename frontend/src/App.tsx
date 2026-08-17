@@ -14,8 +14,8 @@ import { sportsAudio } from './utils/sportsAudio';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import type { Match, Commentary, WSMessage } from './types';
 
-const API_BASE_URL = '';
-const WS_URL = 'ws://localhost:8000/ws';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const WS_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('http', 'ws') + '/ws' : 'ws://localhost:8000/ws';
 
 
 // Fallback seed matches if backend database is completely empty

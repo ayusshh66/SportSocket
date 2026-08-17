@@ -41,7 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch('/api/users/login', {
+    const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+    const res = await fetch(`${apiBaseUrl}/api/users/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -61,7 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signup = async (name: string, email: string, password: string, favoriteSport?: string) => {
-    const res = await fetch('/api/users/signup', {
+    const apiBaseUrl = import.meta.env.VITE_API_URL || '';
+    const res = await fetch(`${apiBaseUrl}/api/users/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password, favoriteSport }),
