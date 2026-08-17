@@ -2,7 +2,8 @@ import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/node";
 import { NextFunction, Response, Request } from "express";
 
 const arcjetKey = process.env.ARCJET_KEY;
-const isDev = process.env.ARCJET_ENV === "development" || process.env.NODE_ENV === "development";
+const env = process.env.ARCJET_ENV || process.env.NODE_ENV;
+const isDev = env === "development";
 const arcjetMode = process.env.ARCJET_MODE === "DRY_RUN" || isDev ? "DRY_RUN" : "LIVE";
 
 if (!arcjetKey) throw new Error("ARCJET_KEY env variable is missing..");
