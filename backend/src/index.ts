@@ -25,17 +25,18 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Exclude health check from Arcjet protection
+app.get("/", (req: Request, res: Response) => {
+  res.send("Hello, World!");
+});
+
 app.use(securityMiddleware());
 
 app.use("/api/users", userRouter);
 app.use("/api/matches", router);
 app.use("/api/matches/:id/commentary", commentartRouter);
 app.use("/api/:id/commentary", commentartRouter);
-
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello, World!");
-});
 
 const { broadcastMatchCreated, broadcastCommentary } = attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
